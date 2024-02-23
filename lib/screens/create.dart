@@ -22,7 +22,7 @@ class _StaffDetailScreenState extends State<StaffDetailScreen> {
   late final TextEditingController lastnameController;
   late final TextEditingController addressController;
   late final TextEditingController cityController;
-  late final TextEditingController districtController ;
+  late final TextEditingController districtController;
   late final TextEditingController wardController;
   DateTime? selectedDate;
   late final bool isCreate;
@@ -30,11 +30,11 @@ class _StaffDetailScreenState extends State<StaffDetailScreen> {
   late List<String> selectItemsCity = [];
   late String? selectedCity;
   //
-  late List<String> selectItemsDistrict=[];
+  late List<String> selectItemsDistrict = [];
   late String? selectedDistrict;
 
   //
-  late List<String> selectItemsWard=[];
+  late List<String> selectItemsWard = [];
 
   @override
   void initState() {
@@ -66,7 +66,7 @@ class _StaffDetailScreenState extends State<StaffDetailScreen> {
               selectItemsDistrict = district;
               print('Dữ liệu từ API: $selectItemsDistrict ');
             });
-          }).catchError((error){
+          }).catchError((error) {
             print('Lỗi khi truy xuất API: $error');
           });
         }
@@ -83,7 +83,7 @@ class _StaffDetailScreenState extends State<StaffDetailScreen> {
               selectItemsWard = wards;
               print('Dữ liệu từ API: $selectItemsWard ');
             });
-          }).catchError((error){
+          }).catchError((error) {
             print('Lỗi khi truy xuất API: $error');
           });
         }
@@ -210,23 +210,24 @@ class _StaffDetailScreenState extends State<StaffDetailScreen> {
               ),
               const SizedBox(height: 16.0),
               FlutterDropdownSearch(
+                disable: !isCreate,
                 hintText: 'Select City',
                 textController: cityController,
-                items: selectItemsCity !=null ? selectItemsCity: [] ,
+                items: selectItemsCity != null ? selectItemsCity : [],
               ),
               SizedBox(height: 12.0),
               FlutterDropdownSearch(
+                disable: !isCreate,
                 hintText: 'Select District',
                 textController: districtController,
-                items:selectItemsDistrict != null ? selectItemsDistrict : [],
-
+                items: selectItemsDistrict != null ? selectItemsDistrict : [],
               ),
               SizedBox(height: 12.0),
               FlutterDropdownSearch(
+                disable: !isCreate,
                 hintText: 'Select Ward',
                 textController: wardController,
-                items: selectItemsWard !=null ? selectItemsWard : [],
-
+                items: selectItemsWard != null ? selectItemsWard : [],
               ),
               const SizedBox(height: 32.0),
               if (isCreate)
@@ -273,7 +274,10 @@ class _StaffDetailScreenState extends State<StaffDetailScreen> {
               children: [
                 Text(
                   label,
-                  style: Theme.of(context).textTheme.bodyLarge?.copyWith(color: Theme.of(context).hintColor),
+                  style: Theme.of(context)
+                      .textTheme
+                      .bodyLarge
+                      ?.copyWith(color: Theme.of(context).hintColor),
                 ),
                 const Icon(Icons.calendar_today),
               ],
