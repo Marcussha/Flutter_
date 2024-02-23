@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_c/database.dart';
+import 'package:flutter_dropdown_search/flutter_dropdown_search.dart';
 import 'package:intl/intl.dart';
 import 'package:random_string/random_string.dart';
 
+import '../API/google_map_api.dart';
 import '../staff_record_model.dart';
 import '../widgets/input_field.dart';
 
@@ -25,6 +27,15 @@ class _StaffDetailScreenState extends State<StaffDetailScreen> {
   DateTime? selectedDate;
   late final bool isCreate;
 
+  late List<String> selectItemsCity = [];
+  late String? selectedCity;
+  //
+  late List<String> selectItemsDistrict=[];
+  late String? selectedDistrict;
+
+  //
+  late List<String> selectItemsWard=[];
+
   @override
   void initState() {
     super.initState();
@@ -35,6 +46,49 @@ class _StaffDetailScreenState extends State<StaffDetailScreen> {
     cityController = TextEditingController(text: widget.staff?.city);
     districtController = TextEditingController(text: widget.staff?.district);
     wardController = TextEditingController(text: widget.staff?.ward);
+
+    fetchProvinces().then((result) {
+      setState(() {
+        selectItemsCity = result;
+        print('Dữ liệu từ API: $selectItemsCity ');
+      });
+    }).catchError((error) {
+      print('Lỗi khi truy xuất API: $error');
+    });
+
+    cityController.addListener(() {
+      setState(() {
+        selectedCity = cityController.text;
+        if (selectedCity != null && selectedCity!.isNotEmpty) {
+          // Gọi hàm để lấy danh sách quận huyện khi thành phố được chọn
+          fetchDistricts(selectedCity!).then((district) {
+            setState(() {
+              selectItemsDistrict = district;
+              print('Dữ liệu từ API: $selectItemsDistrict ');
+            });
+          }).catchError((error){
+            print('Lỗi khi truy xuất API: $error');
+          });
+        }
+      });
+    });
+
+    districtController.addListener(() {
+      setState(() {
+        selectedDistrict = districtController.text;
+        if (selectItemsDistrict != null && selectItemsDistrict!.isNotEmpty) {
+          // Gọi hàm để lấy danh sách quận huyện khi thành phố được chọn
+          fetchWards(selectedCity!, selectedDistrict!).then((wards) {
+            setState(() {
+              selectItemsWard = wards;
+              print('Dữ liệu từ API: $selectItemsWard ');
+            });
+          }).catchError((error){
+            print('Lỗi khi truy xuất API: $error');
+          });
+        }
+      });
+    });
 
     if (widget.staff?.date != null) {
       final currentDate = DateTime.tryParse(widget.staff!.date);
@@ -59,7 +113,7 @@ class _StaffDetailScreenState extends State<StaffDetailScreen> {
   void onSubmit() {
     String id = randomAlphaNumeric(10);
     Map<String, dynamic> staffInfoMap = {
-      "Id": id,
+      "Id": "G24-W-$id",
       "First_Name": firstnameController.text,
       "Last_Name": lastnameController.text,
       "Date": selectedDate.toString(),
@@ -155,22 +209,24 @@ class _StaffDetailScreenState extends State<StaffDetailScreen> {
                 enable: isCreate,
               ),
               const SizedBox(height: 16.0),
-              InputField(
-                label: "City",
-                firstnameController: cityController,
-                enable: isCreate,
+              FlutterDropdownSearch(
+                hintText: 'Select City',
+                textController: cityController,
+                items: selectItemsCity !=null ? selectItemsCity: [] ,
               ),
-              const SizedBox(height: 16.0),
-              InputField(
-                label: "District",
-                firstnameController: districtController,
-                enable: isCreate,
+              SizedBox(height: 12.0),
+              FlutterDropdownSearch(
+                hintText: 'Select District',
+                textController: districtController,
+                items:selectItemsDistrict != null ? selectItemsDistrict : [],
+
               ),
-              const SizedBox(height: 16.0),
-              InputField(
-                label: "Ward",
-                firstnameController: wardController,
-                enable: isCreate,
+              SizedBox(height: 12.0),
+              FlutterDropdownSearch(
+                hintText: 'Select Ward',
+                textController: wardController,
+                items: selectItemsWard !=null ? selectItemsWard : [],
+
               ),
               const SizedBox(height: 32.0),
               if (isCreate)
